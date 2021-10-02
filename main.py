@@ -1,16 +1,30 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+# Pipelines - Pulling Data
+import csv
+import itertools
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+def parse_data(f_name):
+    with open(f_name) as f:
+        dialect = csv.Sniffer().sniff(f.read(2000))
+        f.seek(0)
+        next(f)  # skip header row
+        yield from csv.reader(f, dialect=dialect)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+for row in itertools.islice(parse_data('cars.csv'), 5):
+    print(row)
+
+
+def filter_data(rows, contains):
+    for row in rows:
+        if contains in row[0]:
+            yield row
+
+data = parse_data('cars.csv')
+filtered=filter_data(data, 'Chevrolet')
+print('-------------------')
+for row in itertools.islice(filtered, 5):
+    print(row)
+
+
+
